@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../lib/bootstrap.css">
+    <script src="../lib/jquery.min.js"></script>
+    <script src="../lib/bootstrap.min.js"></script>
+    <script src="../lib/vue.min.js"></script>
+</head>
+<body>
+<div class="container" id="container">
+    <form role="form">
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" class="form-control" placeholder="请输入用户名" v-model="username">
+        </div>
+        <div class="form-group">
+            <label for="age">年 龄</label>
+            <input type="text" id="age" class="form-control" placeholder="请输入年龄" v-model="age">
+        </div>
+        <div class="form-group">
+            <input id='addData' type="button" class="btn btn-primary" value="添加" data-toggle="modal" data-target="" v-on:click="addData()">
+            <input type="reset" class="btn btn-danger" value="重置">
+        </div>
+    </form>
+    <hr/>
+    <table class="table table-bordered table-hover">
+        <caption class="text-info h3">用户信息</caption>
+        <tr class="text-danger ">
+            <th class="text-center">序号</th>
+            <th class="text-center">名字</th>
+            <th class="text-center">年龄</th>
+            <th class="text-center">操作</th>
+
+        </tr>
+        <tr class="text-center" v-for="(item, index) in myData">
+            <td>{{index+1}}</td>
+            <td>{{item.name}}</td>
+            <td>{{item.age}}</td>
+            <td>
+                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#layer"
+                        v-on:click="nowIndex=index">删除
+                </button>
+            </td>
+
+        </tr>
+        <tr v-show="myData.length>0">
+            <td colspan="4" class="text-right">
+                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#layer" v-on:click="nowIndex=-2">
+                    删除全部
+                </button>
+            </td>
+        </tr>
+        <tr v-show="myData.length==0">
+            <td colspan="4" class="text-center text-muted">
+                <p>暂无数据....</p>
+            </td>
+        </tr>
+    </table>
+    <!--模态框 弹出框-->
+    <div role="dialog" class="modal fade bs-example-modal-sm" id="layer">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                    <h4 class="modal-title">确认删除么?</h4>
+                </div>
+                <div class="modal-body text-right">
+                    <button data-dismiss="modal" class="btn btn-danger btn-sm">取消</button>&nbsp;
+                    <button data-dismiss="modal" class="btn btn-danger btn-sm" v-on:click="deleteData(nowIndex)">确认
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--弹出框2-->
+    <div role="dialog" class="modal fade bs-example-modal-sm" id="judge">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                    <h4 class="modal-title">用户名或年龄不能为空</h4>
+                </div>
+                <div class="modal-body text-right">
+
+                    <button data-dismiss="modal" class="btn btn-danger btn-sm">确认
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.onload = function () {
+        new Vue({
+            el: '#container',
+            data: {
+                myData: getData(),
+                username: '',
+                age: '',
+                nowIndex: -100
+            },
+            methods: {
+                addData: function () {
+                    if (this.username == '' || this.age == ''){
+                        $('#addData').attr('data-target','#judge');
+                        return;
+                    }
+                    $('#addData').attr('data-target','');
+                    this.myData.push(
+                            {
+                                name: this.username,
+                                age: this.age
+                            }
+                    );
+
+                    this.username = '';
+                    this.age = '';
+
+                },
+                deleteData: function (index) {
+                    if (index == -2) {
+                        this.myData = [];
+                    } else {
+                        this.myData.splice(index, 1)
+                    }
+
+                }
+
+            },
+            watch: {
+                myData: {
+                    handler: function (myData) {
+                        saveData(myData)
+                    },
+                    deep: true
+                }
+            }
+        })
+    };
+    //获取本地存储
+    var getData = function () {
+        return JSON.parse(window.localStorage.getItem('todoList') || '[]')
+    };
+    //设置本地存储
+    var saveData = function (data) {
+        window.localStorage.setItem('todoList', JSON.stringify(data))
+    }
+
+</script>
+
+</body>
+</html>
